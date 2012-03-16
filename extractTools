@@ -1,0 +1,34 @@
+#!/bin/bash
+fetchCountST(){
+	ST=$1
+	exp=$2 # 0, i15, i45, U15 or U45
+	tag=$3
+
+	dir=$(ls | grep "_"$exp"_" | grep $tag)
+
+	count=$(ls $dir/Depths/ | grep $ST | wc -l)
+	if [ "$count" = '0' ]
+	then
+		echo 'NA'
+	else
+		file=$dir/Depths/$(ls $dir/Depths/ | grep $ST | grep pth.tsv)
+		geneLength=$(wc -l $file)
+		if [ "$geneLength" != '0' ]
+		then
+			echo $(awk '{ SUM += $2 } END { print SUM/$geneLength }' $file)
+		fi
+	fi
+}
+
+getGeneID(){
+	fileName=$1
+	toSed="s/.*ths\///g;s/_prod.*.tsv//g;s/_gene.*.tsv//g"
+	geneID=$(echo $file | sed -e $toSed)
+	echo $geneID
+}
+
+getGeneName(){
+	geneID=$1
+	geneName=$(grep $geneID Reference.fasta | sed -e "s/.*product: //g")
+	echo $geneName
+}
